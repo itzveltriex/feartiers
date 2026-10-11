@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FearTiers | PvP Rankings</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090909;color:#eee;
+font-family:Arial,sans-serif}
+header{padding:18px 16px;background:#111;
+border-bottom:1px solid #292929;display:flex;
+justify-content:space-between;align-items:center;gap:12px}
+.logo{font-size:21px;font-weight:900}
+.logo span{color:#e53945}
+header a{color:#bbb;text-decoration:none;font-size:13px}
+main{max-width:1000px;margin:28px auto;padding:0 12px}
+.top{display:flex;justify-content:space-between;
+align-items:center;gap:12px;flex-wrap:wrap}
+h1{font-size:24px;margin:0 0 7px}
+.muted{color:#888;font-size:13px}
+input{background:#171717;border:1px solid #303030;
+color:white;padding:12px;border-radius:9px;
+width:100%;max-width:260px;outline:none}
+.tabs{display:flex;gap:7px;overflow-x:auto;
+margin-top:24px;padding-bottom:10px}
+.tab{background:#141414;color:#888;border:1px solid #292929;
+border-radius:8px;padding:12px 16px;cursor:pointer;
+white-space:nowrap}
+.tab.active{color:white;border-color:#e53945;
+background:#251416}
+.panel{border:1px solid #292929;background:#101010;
+border-radius:12px;overflow:hidden}
+.tablehead,.player{display:grid;
+grid-template-columns:45px 1fr 100px 90px;
+gap:8px;align-items:center;padding:15px}
+.tablehead{font-size:10px;letter-spacing:1px;
+color:#888;border-bottom:1px solid #292929}
+.player{border-bottom:1px solid #222;font-size:13px}
+.player:last-child{border-bottom:0}
+.rank{color:#999}
+.tier{font-weight:bold;color:#ff626b}
+.region{color:#aaa}
+#results{min-height:100px}
+footer{text-align:center;color:#666;font-size:12px;
+padding:30px 12px}
+@media(max-width:480px){
+header{padding:15px 12px}
+.logo{font-size:18px}
+main{margin-top:22px}
+.tablehead,.player{grid-template-columns:25px 1fr 65px 58px;
+gap:5px;padding:13px 9px;font-size:11px}
+.tablehead{font-size:9px}
+.tab{padding:11px 13px}
+input{max-width:100%}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🍇 Fear<span>Tiers</span></div>
+  <a href="#rankings">♟ Rankings</a>
+</header>
+
+<main id="rankings">
+  <div class="top">
+    <div>
+      <h1>Player Rankings</h1>
+      <div class="muted">FearTiers Competitive Leaderboard</div>
+    </div>
+    <input id="search" placeholder="Search player..."
+      aria-label="Search player">
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <section class="panel">
+    <div class="tablehead">
+      <span>#</span><span>PLAYER</span>
+      <span>REGION</span><span>TIERS</span>
+    </div>
+    <div id="results"></div>
+  </section>
+</main>
+
+<footer>FearTiers · Minecraft PvP Rankings</footer>
+
+<script>
+// EDIT YOUR PLAYER DATA HERE
+const players = [
+ {name:"ExamplePlayer",region:"AS",tiers:{
+   Overall:"LT5",Sword:"HT4",Axe:"LT4",Crystal:"HT5",
+   Netherite:"LT5",UHC:"HT4",SMP:"LT4",Mace:"HT5"}},
+ {name:"PvPExample",region:"EU",tiers:{
+   Overall:"HT5",Sword:"LT4",Axe:"HT5",Crystal:"LT4",
+   Netherite:"HT4",UHC:"LT5",SMP:"HT5",Mace:"LT4"}}
+];
+
+const categories = ["Overall","Sword","Axe","Crystal",
+"Netherite","UHC","SMP","Mace"];
+let selected = "Overall";
+
+const tabs = document.getElementById("tabs");
+const results = document.getElementById("results");
+const search = document.getElementById("search");
+
+categories.forEach(category => {
+  const button = document.createElement("button");
+  button.className = "tab";
+  button.textContent = category;
+  button.onclick = () => {
+    selected = category;
+    render();
+  };
+  button.dataset.category = category;
+  tabs.appendChild(button);
+});
+
+function render(){
+  tabs.querySelectorAll("button").forEach(button=>{
+    button.classList.toggle("active",
+      button.dataset.category === selected);
+  });
+
+  const query = search.value.trim().toLowerCase();
+  const filtered = players.filter(player =>
+    player.name.toLowerCase().includes(query)
+  );
+
+  results.replaceChildren();
+
+  if(!filtered.length){
+    const empty = document.createElement("p");
+    empty.className = "muted";
+    empty.style.padding = "20px";
+    empty.textContent = "No players found.";
+    results.appendChild(empty);
+    return;
+  }
+
+  filtered.forEach((player,index)=>{
+    const row = document.createElement("div");
+    row.className = "player";
+
+    [index+1,player.name,player.region,
+      player.tiers[selected] || "Unranked"].forEach((value,i)=>{
+      const cell = document.createElement("span");
+      cell.textContent = value;
+      if(i===0) cell.className="rank";
+      if(i===2) cell.className="region";
+      if(i===3) cell.className="tier";
+      row.appendChild(cell);
+    });
+
+    results.appendChild(row);
+  });
+}
+
+search.addEventListener("input",render);
+render();
+</script>
+</body>
+</html>
